@@ -5,6 +5,7 @@ import {
   FiImage, FiPackage, FiDollarSign, FiCheckCircle,
   FiXCircle, FiSave, FiAlertTriangle,
 } from 'react-icons/fi';
+import DOMPurify from 'dompurify';
 import api, { API_URL } from '../utils/api';
 
 export default function AdminDashboard() {
@@ -298,7 +299,7 @@ export default function AdminDashboard() {
                             <span className="inline-block px-2 py-0.5 mt-1 bg-surface-dark border border-border rounded text-[10px] text-text-secondary font-medium">
                               {item.category || 'Lainnya'}
                             </span>
-                            <p className="text-xs text-text-muted line-clamp-1 max-w-[300px] mt-1">{item.description}</p>
+                            <p className="text-xs text-text-muted line-clamp-1 max-w-[300px] mt-1">{DOMPurify.sanitize(item.description)}</p>
                           </div>
                         </div>
                       </td>

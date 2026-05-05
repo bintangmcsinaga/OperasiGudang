@@ -1,4 +1,5 @@
 import { FaWhatsapp } from 'react-icons/fa';
+import DOMPurify from 'dompurify';
 import { API_URL } from '../utils/api';
 
 export default function ItemCard({ item }) {
@@ -96,7 +97,7 @@ export default function ItemCard({ item }) {
         </p>
 
         <p className="text-sm text-text-secondary line-clamp-2 mb-4 flex-1">
-          {item.description}
+          {DOMPurify.sanitize(item.description)}
         </p>
 
         {/* WhatsApp Button */}
