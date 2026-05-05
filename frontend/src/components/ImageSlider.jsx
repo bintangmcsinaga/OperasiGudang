@@ -43,28 +43,31 @@ export default function ImageSlider({ images, alt, className = '' }) {
       {images.length > 1 && (
         <>
           {/* Navigation Arrows */}
-          <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
             <button
               onClick={prevSlide}
-              className="p-1 rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors backdrop-blur-sm"
+              className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors backdrop-blur-md shadow-md"
             >
               <FiChevronLeft size={20} />
             </button>
             <button
               onClick={nextSlide}
-              className="p-1 rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors backdrop-blur-sm"
+              className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors backdrop-blur-md shadow-md"
             >
               <FiChevronRight size={20} />
             </button>
           </div>
 
+          {/* Bottom Gradient for dots visibility */}
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+
           {/* Dots Indicator */}
-          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5">
+          <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
             {images.map((_, index) => (
               <div
                 key={index}
-                className={`transition-all duration-300 rounded-full bg-white shadow-sm ${
-                  index === currentIndex ? 'w-4 h-1.5 opacity-100' : 'w-1.5 h-1.5 opacity-50'
+                className={`transition-all duration-300 rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.8)] ${
+                  index === currentIndex ? 'w-4 h-1.5 opacity-100' : 'w-1.5 h-1.5 opacity-60'
                 }`}
               />
             ))}
