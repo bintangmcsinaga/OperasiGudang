@@ -96,17 +96,16 @@ export default function Home() {
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  filter === f.key
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${filter === f.key
                     ? 'bg-primary text-white shadow-md'
                     : 'bg-white text-text-secondary hover:bg-surface-dark border border-border'
-                }`}
+                  }`}
               >
                 {f.label}
               </button>
             ))}
           </div>
-          
+
           {/* Category Dropdown */}
           <div className="flex items-center">
             <select
@@ -164,7 +163,7 @@ export default function Home() {
 
         {/* Items grid */}
         {!loading && !error && filteredItems.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
             {filteredItems.map((item) => (
               <ItemCard key={item._id} item={item} />
             ))}
@@ -181,7 +180,7 @@ export default function Home() {
                 <span className="text-white font-bold text-xs">BB</span>
               </div>
               <span className="text-sm text-text-secondary">
-                &copy; {new Date().getFullYear()} BekasBagus. All rights reserved.
+                &copy; {new Date().getFullYear()} BekasBagus By Bintang Ganteng. All rights reserved.
               </span>
             </div>
             <p className="text-xs text-text-muted">
