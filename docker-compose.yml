@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongo:
+    image: mongo:7
+    container_name: bekasbagus-db
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - bekasbagus-network
+
+  # Express.js Backend
+  backend:
+    build: ./backend
+    container_name: bekasbagus-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongo:27017/bekasbagus
+      - JWT_SECRET=supersecretkey_bekasbagus_2024
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin123
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      - mongo
+    networks:
+      - bekasbagus-network
+
+  # React + Vite Frontend (served by Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:5000
+        VITE_WHATSAPP_NUMBER: "6281234567890"
+    container_name: bekasbagus-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - bekasbagus-network
+
+volumes:
+  mongo_data:
+  uploads_data:
+
+networks:
+  bekasbagus-network:
+    driver: bridge
