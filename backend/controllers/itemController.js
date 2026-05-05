@@ -39,12 +39,13 @@ const getItemById = async (req, res) => {
  */
 const createItem = async (req, res) => {
   try {
-    const { name, price, description, status } = req.body;
+    const { name, price, description, status, category } = req.body;
 
     const item = new Item({
       name,
       price: Number(price),
       description,
+      category,
       status: status || 'available',
       image: req.file ? `/uploads/${req.file.filename}` : '',
     });
@@ -67,7 +68,7 @@ const createItem = async (req, res) => {
  */
 const updateItem = async (req, res) => {
   try {
-    const { name, price, description, status } = req.body;
+    const { name, price, description, status, category } = req.body;
     const item = await Item.findById(req.params.id);
 
     if (!item) {
@@ -78,6 +79,7 @@ const updateItem = async (req, res) => {
     if (name !== undefined) item.name = name;
     if (price !== undefined) item.price = Number(price);
     if (description !== undefined) item.description = description;
+    if (category !== undefined) item.category = category;
     if (status !== undefined) item.status = status;
 
     // Handle new image upload

@@ -17,6 +17,21 @@ const itemSchema = new mongoose.Schema(
       required: [true, 'Deskripsi barang harus diisi'],
       trim: true,
     },
+    category: {
+      type: String,
+      enum: [
+        'Pakaian',
+        'Elektronik',
+        'Peralatan Rumah Tangga',
+        'Furniture',
+        'Olahraga',
+        'Buku',
+        'Kendaraan',
+        'Lainnya',
+      ],
+      required: [true, 'Kategori barang harus diisi'],
+      default: 'Lainnya',
+    },
     image: {
       type: String,
       default: '',

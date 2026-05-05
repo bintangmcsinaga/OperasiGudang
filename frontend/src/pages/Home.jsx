@@ -10,6 +10,7 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all'); // all | available | sold
+  const [categoryFilter, setCategoryFilter] = useState('Semua Kategori');
 
   useEffect(() => {
     fetchItems();
@@ -33,8 +34,21 @@ export default function Home() {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
       item.description.toLowerCase().includes(search.toLowerCase());
     const matchesFilter = filter === 'all' || item.status === filter;
-    return matchesSearch && matchesFilter;
+    const matchesCategory = categoryFilter === 'Semua Kategori' || item.category === categoryFilter;
+    return matchesSearch && matchesFilter && matchesCategory;
   });
+
+  const categories = [
+    'Semua Kategori',
+    'Pakaian',
+    'Elektronik',
+    'Peralatan Rumah Tangga',
+    'Furniture',
+    'Olahraga',
+    'Buku',
+    'Kendaraan',
+    'Lainnya',
+  ];
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -92,6 +106,22 @@ export default function Home() {
               </button>
             ))}
           </div>
+          
+          {/* Category Dropdown */}
+          <div className="flex items-center">
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-4 py-2 rounded-xl text-sm font-medium bg-white text-text-secondary border border-border focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all cursor-pointer"
+            >
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <p className="text-sm text-text-muted">
             {filteredItems.length} barang ditemukan
           </p>

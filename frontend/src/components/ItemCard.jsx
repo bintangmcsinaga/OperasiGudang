@@ -82,9 +82,14 @@ export default function ItemCard({ item }) {
 
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
-        <h3 className="text-lg font-semibold text-text-primary line-clamp-1 mb-1">
-          {item.name}
-        </h3>
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <h3 className="text-lg font-semibold text-text-primary line-clamp-1">
+            {item.name}
+          </h3>
+          <span className="inline-block px-2 py-0.5 bg-surface-dark border border-border rounded text-[10px] text-text-secondary font-medium shrink-0">
+            {item.category || 'Lainnya'}
+          </span>
+        </div>
 
         <p className="text-xl font-bold text-accent mb-2">
           {formatPrice(item.price)}

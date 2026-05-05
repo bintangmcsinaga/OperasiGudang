@@ -16,7 +16,7 @@ export default function AdminDashboard() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    name: '', price: '', description: '', status: 'available', image: null,
+    name: '', price: '', description: '', status: 'available', category: 'Lainnya', image: null,
   });
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -49,7 +49,7 @@ export default function AdminDashboard() {
 
   const openAddModal = () => {
     setEditItem(null);
-    setForm({ name: '', price: '', description: '', status: 'available', image: null });
+    setForm({ name: '', price: '', description: '', status: 'available', category: 'Lainnya', image: null });
     setPreview(null);
     setShowModal(true);
   };
@@ -61,6 +61,7 @@ export default function AdminDashboard() {
       price: item.price.toString(),
       description: item.description,
       status: item.status,
+      category: item.category || 'Lainnya',
       image: null,
     });
     setPreview(item.image ? (item.image.startsWith('http') ? item.image : `${API_URL}${item.image}`) : null);
@@ -96,6 +97,7 @@ export default function AdminDashboard() {
       formData.append('price', form.price);
       formData.append('description', form.description);
       formData.append('status', form.status);
+      formData.append('category', form.category);
       if (form.image) {
         formData.append('image', form.image);
       }
@@ -293,7 +295,10 @@ export default function AdminDashboard() {
                           )}
                           <div>
                             <p className="font-medium text-text-primary text-sm">{item.name}</p>
-                            <p className="text-xs text-text-muted line-clamp-1 max-w-[300px]">{item.description}</p>
+                            <span className="inline-block px-2 py-0.5 mt-1 bg-surface-dark border border-border rounded text-[10px] text-text-secondary font-medium">
+                              {item.category || 'Lainnya'}
+                            </span>
+                            <p className="text-xs text-text-muted line-clamp-1 max-w-[300px] mt-1">{item.description}</p>
                           </div>
                         </div>
                       </td>
@@ -356,6 +361,9 @@ export default function AdminDashboard() {
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="font-medium text-text-primary text-sm">{item.name}</p>
+                        <span className="inline-block px-2 py-0.5 mt-0.5 bg-surface-dark border border-border rounded text-[10px] text-text-secondary font-medium">
+                          {item.category || 'Lainnya'}
+                        </span>
                         <p className="text-sm font-semibold text-accent mt-0.5">{formatPrice(item.price)}</p>
                       </div>
                       <button
@@ -439,6 +447,25 @@ export default function AdminDashboard() {
                   placeholder="contoh: iPhone 12 Pro Max"
                   className="w-full px-4 py-3 bg-surface-dark border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
                 />
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="block text-sm font-medium text-text-primary mb-1.5">Kategori</label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="w-full px-4 py-3 bg-surface-dark border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all cursor-pointer"
+                >
+                  <option value="Pakaian">Pakaian</option>
+                  <option value="Elektronik">Elektronik</option>
+                  <option value="Peralatan Rumah Tangga">Peralatan Rumah Tangga</option>
+                  <option value="Furniture">Furniture</option>
+                  <option value="Olahraga">Olahraga</option>
+                  <option value="Buku">Buku</option>
+                  <option value="Kendaraan">Kendaraan</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
               </div>
 
               {/* Price */}
