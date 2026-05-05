@@ -43,7 +43,7 @@ export default function ImageSlider({ images, alt, className = '' }) {
       {images.length > 1 && (
         <>
           {/* Navigation Arrows */}
-          <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+          <div className="absolute inset-0 flex items-center justify-between p-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 z-10">
             <button
               onClick={prevSlide}
               className="p-1.5 rounded-full bg-highlight text-white hover:bg-highlight/80 transition-all shadow-lg transform hover:scale-110"

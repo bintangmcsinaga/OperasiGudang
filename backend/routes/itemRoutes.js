@@ -11,6 +11,7 @@ const {
 } = require('../controllers/itemController');
 
 const router = express.Router();
+// Trigger nodemon restart
 
 // Multer configuration for image upload
 const storage = multer.diskStorage({
@@ -44,8 +45,8 @@ router.get('/', getItems);
 router.get('/:id', getItemById);
 
 // Protected routes (admin only)
-router.post('/', auth, upload.array('images', 5), createItem);
-router.put('/:id', auth, upload.array('images', 5), updateItem);
+router.post('/', auth, upload.any(), (req, res, next) => { console.log('Parsed files:', req.files); next(); }, createItem);
+router.put('/:id', auth, upload.any(), updateItem);
 router.delete('/:id', auth, deleteItem);
 
 module.exports = router;

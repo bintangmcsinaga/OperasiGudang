@@ -303,9 +303,9 @@ export default function AdminDashboard() {
                     <tr key={item._id} className="hover:bg-surface-hover transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
-                          {item.image ? (
+                          {item.images && item.images.length > 0 ? (
                             <img
-                              src={item.image.startsWith('http') ? item.image : `${API_URL}${item.image}`}
+                              src={item.images[0].startsWith('http') ? item.images[0] : `${API_URL}${item.images[0]}`}
                               alt={item.name}
                               className="w-12 h-12 rounded-xl object-cover border border-border"
                             />
@@ -367,9 +367,9 @@ export default function AdminDashboard() {
             <div className="md:hidden divide-y divide-border-light">
               {items.map((item) => (
                 <div key={item._id} className="p-4 flex items-start gap-3">
-                  {item.image ? (
+                  {item.images && item.images.length > 0 ? (
                     <img
-                      src={item.image.startsWith('http') ? item.image : `${API_URL}${item.image}`}
+                      src={item.images[0].startsWith('http') ? item.images[0] : `${API_URL}${item.images[0]}`}
                       alt={item.name}
                       className="w-16 h-16 rounded-xl object-cover border border-border shrink-0"
                     />
@@ -441,7 +441,7 @@ export default function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => removeExistingImage(idx)}
-                            className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                            className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-md"
                           >
                             <FiX size={14} />
                           </button>
@@ -455,7 +455,7 @@ export default function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => removeNewImage(idx)}
-                            className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                            className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-md"
                           >
                             <FiX size={14} />
                           </button>

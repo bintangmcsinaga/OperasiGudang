@@ -91,7 +91,7 @@ export default function ItemDetail() {
         {/* Left: Image Slider */}
         <div className="w-full lg:w-1/2 relative bg-surface-dark min-h-[300px] lg:min-h-[500px]">
           <ImageSlider images={item.images} alt={item.name} className="absolute inset-0 w-full h-full" />
-          
+
           {/* Status Badge */}
           <div className="absolute top-4 right-4 z-10">
             {isSold ? (
@@ -124,7 +124,7 @@ export default function ItemDetail() {
             <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2 leading-tight">
               {item.name}
             </h1>
-            
+
             <p className="text-3xl sm:text-4xl font-bold text-accent mb-8">
               {formatPrice(item.price)}
             </p>
@@ -133,11 +133,11 @@ export default function ItemDetail() {
               <h3 className="text-lg font-semibold text-text-primary mb-2">Deskripsi Barang</h3>
               {DOMPurify.sanitize(item.description)}
             </div>
-            
+
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-8 flex items-start gap-3">
               <FiCheckCircle className="text-blue-500 mt-0.5 shrink-0" size={20} />
               <p className="text-sm text-blue-800">
-                Barang yang dijual di BekasBagus telah melalui pengecekan kualitas. Hubungi penjual untuk memastikan ketersediaan barang.
+                Hubungi penjual untuk memastikan ketersediaan barang.
               </p>
             </div>
           </div>
