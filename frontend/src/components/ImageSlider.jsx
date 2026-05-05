@@ -46,13 +46,13 @@ export default function ImageSlider({ images, alt, className = '' }) {
           <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
             <button
               onClick={prevSlide}
-              className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors backdrop-blur-md shadow-md"
+              className="p-1.5 rounded-full bg-highlight text-white hover:bg-highlight/80 transition-all shadow-lg transform hover:scale-110"
             >
               <FiChevronLeft size={20} />
             </button>
             <button
               onClick={nextSlide}
-              className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors backdrop-blur-md shadow-md"
+              className="p-1.5 rounded-full bg-highlight text-white hover:bg-highlight/80 transition-all shadow-lg transform hover:scale-110"
             >
               <FiChevronRight size={20} />
             </button>
