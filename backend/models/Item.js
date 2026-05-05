@@ -32,9 +32,9 @@ const itemSchema = new mongoose.Schema(
       required: [true, 'Kategori barang harus diisi'],
       default: 'Lainnya',
     },
-    image: {
-      type: String,
-      default: '',
+    images: {
+      type: [String],
+      default: [],
     },
     status: {
       type: String,

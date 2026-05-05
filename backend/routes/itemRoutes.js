@@ -44,8 +44,8 @@ router.get('/', getItems);
 router.get('/:id', getItemById);
 
 // Protected routes (admin only)
-router.post('/', auth, upload.single('image'), createItem);
-router.put('/:id', auth, upload.single('image'), updateItem);
+router.post('/', auth, upload.array('images', 5), createItem);
+router.put('/:id', auth, upload.array('images', 5), updateItem);
 router.delete('/:id', auth, deleteItem);
 
 module.exports = router;

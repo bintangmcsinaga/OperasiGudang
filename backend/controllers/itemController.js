@@ -41,13 +41,16 @@ const createItem = async (req, res) => {
   try {
     const { name, price, description, status, category } = req.body;
 
+    // Get uploaded file paths
+    const newImages = req.files ? req.files.map((file) => `/uploads/${file.filename}`) : [];
+
     const item = new Item({
       name,
       price: Number(price),
       description,
       category,
       status: status || 'available',
-      image: req.file ? `/uploads/${req.file.filename}` : '',
+      images: newImages,
     });
 
     const savedItem = await item.save();
@@ -82,17 +85,25 @@ const updateItem = async (req, res) => {
     if (category !== undefined) item.category = category;
     if (status !== undefined) item.status = status;
 
-    // Handle new image upload
-    if (req.file) {
-      // Delete old image if exists
-      if (item.image) {
-        const oldImagePath = path.join(__dirname, '..', item.image);
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
-      }
-      item.image = `/uploads/${req.file.filename}`;
+    // Handle existing images to keep
+    let existingImages = req.body.existingImages || [];
+    if (!Array.isArray(existingImages)) {
+      existingImages = [existingImages]; // Ensure array if only one string sent
     }
+    
+    // Find images to delete
+    const imagesToDelete = item.images.filter((img) => !existingImages.includes(img));
+    imagesToDelete.forEach((img) => {
+      const oldImagePath = path.join(__dirname, '..', img);
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+    });
+
+    // Handle new image upload
+    const newImages = req.files ? req.files.map((file) => `/uploads/${file.filename}`) : [];
+
+    item.images = [...existingImages, ...newImages];
 
     const updatedItem = await item.save();
     res.json(updatedItem);
@@ -118,12 +129,14 @@ const deleteItem = async (req, res) => {
       return res.status(404).json({ message: 'Barang tidak ditemukan.' });
     }
 
-    // Delete image file if exists
-    if (item.image) {
-      const imagePath = path.join(__dirname, '..', item.image);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
+    // Delete all image files if exists
+    if (item.images && item.images.length > 0) {
+      item.images.forEach((img) => {
+        const imagePath = path.join(__dirname, '..', img);
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
+      });
     }
 
     await Item.findByIdAndDelete(req.params.id);

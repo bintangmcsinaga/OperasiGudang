@@ -17,9 +17,10 @@ export default function AdminDashboard() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    name: '', price: '', description: '', status: 'available', category: 'Lainnya', image: null,
+    name: '', price: '', description: '', status: 'available', category: 'Lainnya'
   });
-  const [preview, setPreview] = useState(null);
+  const [images, setImages] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
@@ -50,8 +51,9 @@ export default function AdminDashboard() {
 
   const openAddModal = () => {
     setEditItem(null);
-    setForm({ name: '', price: '', description: '', status: 'available', category: 'Lainnya', image: null });
-    setPreview(null);
+    setForm({ name: '', price: '', description: '', status: 'available', category: 'Lainnya' });
+    setImages([]);
+    setExistingImages([]);
     setShowModal(true);
   };
 
@@ -63,24 +65,38 @@ export default function AdminDashboard() {
       description: item.description,
       status: item.status,
       category: item.category || 'Lainnya',
-      image: null,
     });
-    setPreview(item.image ? (item.image.startsWith('http') ? item.image : `${API_URL}${item.image}`) : null);
+    setImages([]);
+    setExistingImages(item.images || []);
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
     setEditItem(null);
-    setPreview(null);
+    setImages([]);
+    setExistingImages([]);
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setForm({ ...form, image: file });
-      setPreview(URL.createObjectURL(file));
+    const files = Array.from(e.target.files);
+    if (images.length + existingImages.length + files.length > 5) {
+      showMessage('error', 'Maksimal 5 gambar per barang.');
+      return;
     }
+    setImages([...images, ...files]);
+  };
+
+  const removeNewImage = (index) => {
+    const newImages = [...images];
+    newImages.splice(index, 1);
+    setImages(newImages);
+  };
+
+  const removeExistingImage = (index) => {
+    const newExisting = [...existingImages];
+    newExisting.splice(index, 1);
+    setExistingImages(newExisting);
   };
 
   const handleSubmit = async (e) => {
@@ -99,9 +115,13 @@ export default function AdminDashboard() {
       formData.append('description', form.description);
       formData.append('status', form.status);
       formData.append('category', form.category);
-      if (form.image) {
-        formData.append('image', form.image);
-      }
+      
+      images.forEach(file => {
+        formData.append('images', file);
+      });
+      existingImages.forEach(img => {
+        formData.append('existingImages', img);
+      });
 
       if (editItem) {
         await api.put(`/items/${editItem._id}`, formData, {
@@ -410,25 +430,49 @@ export default function AdminDashboard() {
               {/* Image upload */}
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-1.5">Foto Barang</label>
-                <div className="relative">
-                  {preview ? (
-                    <div className="relative group">
-                      <img src={preview} alt="Preview" className="w-full h-48 object-cover rounded-xl border border-border" />
-                      <button
-                        type="button"
-                        onClick={() => { setPreview(null); setForm({ ...form, image: null }); }}
-                        className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <FiX size={14} />
-                      </button>
+                <div className="space-y-3">
+                  {/* Image Previews Grid */}
+                  {(existingImages.length > 0 || images.length > 0) && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {/* Existing Images */}
+                      {existingImages.map((imgUrl, idx) => (
+                        <div key={`exist-${idx}`} className="relative group aspect-square">
+                          <img src={imgUrl.startsWith('http') ? imgUrl : `${API_URL}${imgUrl}`} alt="Preview" className="w-full h-full object-cover rounded-xl border border-border" />
+                          <button
+                            type="button"
+                            onClick={() => removeExistingImage(idx)}
+                            className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                          >
+                            <FiX size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      
+                      {/* New Images */}
+                      {images.map((file, idx) => (
+                        <div key={`new-${idx}`} className="relative group aspect-square">
+                          <img src={URL.createObjectURL(file)} alt="Preview" className="w-full h-full object-cover rounded-xl border-2 border-primary/50" />
+                          <button
+                            type="button"
+                            onClick={() => removeNewImage(idx)}
+                            className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                          >
+                            <FiX size={14} />
+                          </button>
+                        </div>
+                      ))}
                     </div>
-                  ) : (
-                    <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-surface-dark hover:border-accent transition-all">
-                      <FiImage className="text-text-muted mb-2" size={32} />
-                      <span className="text-sm text-text-muted">Klik untuk upload foto</span>
-                      <span className="text-xs text-text-muted mt-1">JPG, PNG, WebP (max 5MB)</span>
+                  )}
+
+                  {/* Upload Button */}
+                  {(existingImages.length + images.length) < 5 && (
+                    <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-surface-dark hover:border-accent transition-all">
+                      <FiImage className="text-text-muted mb-1" size={24} />
+                      <span className="text-sm text-text-muted font-medium">Tambah Foto</span>
+                      <span className="text-xs text-text-muted">Maksimal 5 gambar</span>
                       <input
                         type="file"
+                        multiple
                         accept="image/jpeg,image/png,image/webp"
                         onChange={handleImageChange}
                         className="hidden"
