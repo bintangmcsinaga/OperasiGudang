@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
+const xss = require('xss');
 require('dotenv').config();
 
 const connectDB = require('./config/db');
@@ -24,10 +24,33 @@ app.use(express.json({ limit: '10kb' })); // Body parser, limit to 10kb
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Data sanitization against NoSQL query injection
-app.use(mongoSanitize());
+app.use((req, res, next) => {
+  if (req.body) mongoSanitize.sanitize(req.body);
+  if (req.query) mongoSanitize.sanitize(req.query);
+  if (req.params) mongoSanitize.sanitize(req.params);
+  if (req.headers) mongoSanitize.sanitize(req.headers);
+  next();
+});
 
 // Data sanitization against XSS
-app.use(xss());
+const cleanObj = (obj) => {
+  if (typeof obj === 'string') return xss(obj);
+  if (typeof obj === 'object' && obj !== null) {
+    for (let key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        obj[key] = cleanObj(obj[key]);
+      }
+    }
+  }
+  return obj;
+};
+
+app.use((req, res, next) => {
+  if (req.body) cleanObj(req.body);
+  if (req.query) cleanObj(req.query);
+  if (req.params) cleanObj(req.params);
+  next();
+});
 
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -56,7 +79,7 @@ app.use((err, req, res, next) => {
     return res.status(400).json({ message: err.message });
   }
 
-  res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+  res.status(500).json({ message: 'Terjadi kesalahan pada server.', stack: err.stack });
 });
 
 // Start server
