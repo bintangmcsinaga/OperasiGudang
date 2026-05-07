@@ -84,6 +84,6 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server Operasi Gudang running on port ${PORT}`);
   console.log(`Uploads served at http://localhost:${PORT}/uploads`);
 });
