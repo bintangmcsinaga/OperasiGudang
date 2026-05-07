@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 
+//auth untuk login digunakan disini
 const auth = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;

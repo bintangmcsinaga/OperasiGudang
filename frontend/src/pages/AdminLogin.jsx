@@ -117,7 +117,7 @@ export default function AdminLogin() {
         </div>
 
         <p className="text-center text-xs text-white/50 mt-6">
-          BekasBagus Admin Panel
+          Operasi Gudang Admin Panel
         </p>
       </div>
     </div>

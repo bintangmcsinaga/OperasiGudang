@@ -97,8 +97,8 @@ export default function Home() {
                 key={f.key}
                 onClick={() => setFilter(f.key)}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${filter === f.key
-                    ? 'bg-primary text-white shadow-md'
-                    : 'bg-white text-text-secondary hover:bg-surface-dark border border-border'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'bg-white text-text-secondary hover:bg-surface-dark border border-border'
                   }`}
               >
                 {f.label}
@@ -180,7 +180,7 @@ export default function Home() {
                 <span className="text-white font-bold text-xs">BB</span>
               </div>
               <span className="text-sm text-text-secondary">
-                &copy; {new Date().getFullYear()} BekasBagus By Bintang Ganteng. All rights reserved.
+                &copy; {new Date().getFullYear()} operasigudang By Bintang Ganteng. All rights reserved.
               </span>
             </div>
             <p className="text-xs text-text-muted">

@@ -18,7 +18,7 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col">
               <span className="text-lg font-bold text-text-primary leading-tight tracking-tight">
-                BekasBagus
+                Operasi Gudang
               </span>
               <span className="text-[10px] text-text-muted font-medium uppercase tracking-widest">
                 Katalog Barang Bekas
@@ -30,21 +30,19 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-4">
             <Link
               to="/"
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                location.pathname === '/'
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${location.pathname === '/'
                   ? 'bg-primary text-white shadow-md'
                   : 'text-text-secondary hover:text-text-primary hover:bg-surface-dark'
-              }`}
+                }`}
             >
               Katalog
             </Link>
             <Link
               to="/admin/login"
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                isAdmin
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isAdmin
                   ? 'bg-primary text-white shadow-md'
                   : 'text-text-secondary hover:text-text-primary hover:bg-surface-dark'
-              }`}
+                }`}
             >
               <FiShield size={14} />
               Admin
@@ -66,22 +64,20 @@ export default function Navbar() {
             <Link
               to="/"
               onClick={() => setIsOpen(false)}
-              className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                location.pathname === '/'
+              className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/'
                   ? 'bg-primary text-white'
                   : 'text-text-secondary hover:bg-surface-dark'
-              }`}
+                }`}
             >
               Katalog
             </Link>
             <Link
               to="/admin/login"
               onClick={() => setIsOpen(false)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                isAdmin
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${isAdmin
                   ? 'bg-primary text-white'
                   : 'text-text-secondary hover:bg-surface-dark'
-              }`}
+                }`}
             >
               <FiShield size={14} />
               Admin
