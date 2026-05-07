@@ -18,7 +18,7 @@ export default function ItemDetail() {
         setLoading(true);
         const res = await api.get(`/items/${id}`);
         setItem(res.data);
-      } catch (err) {
+      } catch {
         setError('Gagal memuat detail barang.');
       } finally {
         setLoading(false);

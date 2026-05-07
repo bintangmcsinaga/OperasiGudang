@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FiPlus, FiEdit2, FiTrash2, FiLogOut, FiX,
@@ -8,6 +8,104 @@ import {
 import DOMPurify from 'dompurify';
 import api, { API_URL } from '../utils/api';
 
+const MAX_IMAGES = 5;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const SELECTABLE_IMAGE_TYPES = [...ALLOWED_IMAGE_TYPES, 'image/heic', 'image/heif'];
+const IMAGE_FILE_PATTERN = /\.(jpe?g|png|webp|heic|heif)$/i;
+const COMPRESSION_ATTEMPTS = [
+  { maxDimension: 1800, quality: 0.82 },
+  { maxDimension: 1400, quality: 0.74 },
+  { maxDimension: 1100, quality: 0.68 },
+];
+
+const isSelectableImage = (file) => {
+  return SELECTABLE_IMAGE_TYPES.includes(file.type) || IMAGE_FILE_PATTERN.test(file.name);
+};
+
+const toJpegFileName = (fileName) => {
+  const baseName = fileName.replace(/\.[^/.]+$/, '');
+  return `${baseName || 'foto-barang'}.jpg`;
+};
+
+const loadImage = (file) => {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Gagal memuat foto.'));
+    };
+
+    image.src = objectUrl;
+  });
+};
+
+const canvasToBlob = (canvas, quality) => {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        resolve(blob);
+        return;
+      }
+
+      reject(new Error('Gagal mengompres foto.'));
+    }, 'image/jpeg', quality);
+  });
+};
+
+const compressImageFile = async (file) => {
+  const image = await loadImage(file);
+  const imageWidth = image.naturalWidth || image.width;
+  const imageHeight = image.naturalHeight || image.height;
+
+  if (!imageWidth || !imageHeight) {
+    throw new Error('Ukuran foto tidak valid.');
+  }
+
+  for (const { maxDimension, quality } of COMPRESSION_ATTEMPTS) {
+    const scale = Math.min(1, maxDimension / Math.max(imageWidth, imageHeight));
+    const width = Math.max(1, Math.round(imageWidth * scale));
+    const height = Math.max(1, Math.round(imageHeight * scale));
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      throw new Error('Gagal menyiapkan kanvas foto.');
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, width, height);
+    context.drawImage(image, 0, 0, width, height);
+
+    const blob = await canvasToBlob(canvas, quality);
+    if (blob.size <= MAX_IMAGE_SIZE) {
+      return new File([blob], toJpegFileName(file.name), {
+        type: 'image/jpeg',
+        lastModified: Date.now(),
+      });
+    }
+  }
+
+  throw new Error('Foto terlalu besar.');
+};
+
+const prepareImageFile = async (file) => {
+  if (ALLOWED_IMAGE_TYPES.includes(file.type) && file.size <= MAX_IMAGE_SIZE) {
+    return file;
+  }
+
+  return compressImageFile(file);
+};
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
@@ -16,12 +114,36 @@ export default function AdminDashboard() {
   const [editItem, setEditItem] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [processingImages, setProcessingImages] = useState(false);
   const [form, setForm] = useState({
     name: '', price: '', description: '', status: 'available', category: 'Lainnya'
   });
   const [images, setImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const imagePreviews = useMemo(
+    () => images.map((file) => ({
+      file,
+      url: URL.createObjectURL(file),
+    })),
+    [images]
+  );
+
+  const showMessage = useCallback((type, text) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage({ type: '', text: '' }), 4000);
+  }, []);
+
+  const fetchItems = useCallback(async () => {
+    try {
+      const res = await api.get('/items');
+      setItems(res.data);
+    } catch {
+      showMessage('error', 'Gagal memuat data barang.');
+    } finally {
+      setLoading(false);
+    }
+  }, [showMessage]);
 
   useEffect(() => {
     const token = localStorage.getItem('bb_token');
@@ -29,25 +151,15 @@ export default function AdminDashboard() {
       navigate('/admin/login');
       return;
     }
-    fetchItems();
-  }, [navigate]);
+    const loadTimer = window.setTimeout(fetchItems, 0);
+    return () => window.clearTimeout(loadTimer);
+  }, [navigate, fetchItems]);
 
-  const fetchItems = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get('/items');
-      setItems(res.data);
-    } catch (err) {
-      showMessage('error', 'Gagal memuat data barang.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const showMessage = (type, text) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage({ type: '', text: '' }), 4000);
-  };
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach(({ url }) => URL.revokeObjectURL(url));
+    };
+  }, [imagePreviews]);
 
   const openAddModal = () => {
     setEditItem(null);
@@ -78,13 +190,47 @@ export default function AdminDashboard() {
     setExistingImages([]);
   };
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (images.length + existingImages.length + files.length > 5) {
-      showMessage('error', 'Maksimal 5 gambar per barang.');
+  const handleImageChange = async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+
+    if (files.length === 0) {
       return;
     }
-    setImages([...images, ...files]);
+
+    if (images.length + existingImages.length + files.length > MAX_IMAGES) {
+      showMessage('error', `Maksimal ${MAX_IMAGES} gambar per barang.`);
+      return;
+    }
+
+    if (files.some((file) => !isSelectableImage(file))) {
+      showMessage('error', 'Format foto harus JPG, PNG, WebP, atau HEIC.');
+      return;
+    }
+
+    try {
+      setProcessingImages(true);
+      const preparedFiles = [];
+      let compressedCount = 0;
+
+      for (const file of files) {
+        const preparedFile = await prepareImageFile(file);
+        if (preparedFile !== file) {
+          compressedCount += 1;
+        }
+        preparedFiles.push(preparedFile);
+      }
+
+      setImages((currentImages) => [...currentImages, ...preparedFiles]);
+
+      if (compressedCount > 0) {
+        showMessage('success', 'Foto besar otomatis dikompres.');
+      }
+    } catch {
+      showMessage('error', 'Gagal memproses foto. Gunakan JPG, PNG, WebP, atau HEIC yang lebih kecil.');
+    } finally {
+      setProcessingImages(false);
+    }
   };
 
   const removeNewImage = (index) => {
@@ -102,7 +248,14 @@ export default function AdminDashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.name || !form.price || !form.description) {
+    const nextForm = {
+      ...form,
+      name: form.name.trim(),
+      price: form.price.toString().trim(),
+      description: form.description.trim(),
+    };
+
+    if (!nextForm.name || !nextForm.price || !nextForm.description) {
       showMessage('error', 'Semua field harus diisi.');
       return;
     }
@@ -110,11 +263,11 @@ export default function AdminDashboard() {
     try {
       setSaving(true);
       const formData = new FormData();
-      formData.append('name', form.name);
-      formData.append('price', form.price);
-      formData.append('description', form.description);
-      formData.append('status', form.status);
-      formData.append('category', form.category);
+      formData.append('name', nextForm.name);
+      formData.append('price', nextForm.price);
+      formData.append('description', nextForm.description);
+      formData.append('status', nextForm.status);
+      formData.append('category', nextForm.category);
       
       images.forEach(file => {
         formData.append('images', file);
@@ -150,7 +303,7 @@ export default function AdminDashboard() {
       showMessage('success', 'Barang berhasil dihapus!');
       setDeleteConfirm(null);
       fetchItems();
-    } catch (err) {
+    } catch {
       showMessage('error', 'Gagal menghapus barang.');
     }
   };
@@ -161,7 +314,7 @@ export default function AdminDashboard() {
       await api.put(`/items/${item._id}`, { status: newStatus });
       showMessage('success', `Status diubah menjadi ${newStatus === 'sold' ? 'Sold Out' : 'Tersedia'}.`);
       fetchItems();
-    } catch (err) {
+    } catch {
       showMessage('error', 'Gagal mengubah status.');
     }
   };
@@ -182,7 +335,7 @@ export default function AdminDashboard() {
     <div className="min-h-[calc(100vh-64px)] bg-[#f8fafc]">
       {/* Toast notification */}
       {message.text && (
-        <div className={`fixed top-20 right-4 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-xl text-sm font-medium animate-[slideIn_0.3s_ease] ${
+        <div className={`fixed left-4 right-4 top-20 z-50 flex items-center gap-3 rounded-xl px-5 py-3 text-sm font-medium shadow-xl animate-[slideIn_0.3s_ease] sm:left-auto sm:right-4 sm:max-w-sm ${
           message.type === 'success'
             ? 'bg-green-50 text-green-700 border border-green-200'
             : 'bg-red-50 text-red-700 border border-red-200'
@@ -413,20 +566,21 @@ export default function AdminDashboard() {
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="fixed inset-0 z-50 flex h-[100dvh] items-start justify-center overflow-y-auto bg-black/50 p-3 pt-4 backdrop-blur-sm sm:items-center sm:p-4">
+          <div className="flex w-full max-w-lg max-h-[calc(100dvh-1.5rem)] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-3xl">
             {/* Modal header */}
-            <div className="flex items-center justify-between p-6 border-b border-border">
+            <div className="flex shrink-0 items-center justify-between border-b border-border p-5 sm:p-6">
               <h2 className="text-lg font-bold text-text-primary">
                 {editItem ? 'Edit Barang' : 'Tambah Barang Baru'}
               </h2>
-              <button onClick={closeModal} className="p-2 rounded-lg hover:bg-surface-dark transition-colors">
+              <button onClick={closeModal} className="p-2 rounded-lg transition-colors hover:bg-surface-dark">
                 <FiX size={20} className="text-text-muted" />
               </button>
             </div>
 
             {/* Modal body */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+              <div className="flex-1 space-y-5 overflow-y-auto overscroll-contain p-5 sm:p-6">
               {/* Image upload */}
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-1.5">Foto Barang</label>
@@ -449,9 +603,9 @@ export default function AdminDashboard() {
                       ))}
                       
                       {/* New Images */}
-                      {images.map((file, idx) => (
-                        <div key={`new-${idx}`} className="relative group aspect-square">
-                          <img src={URL.createObjectURL(file)} alt="Preview" className="w-full h-full object-cover rounded-xl border-2 border-primary/50" />
+                      {imagePreviews.map(({ file, url }, idx) => (
+                        <div key={`${file.name}-${file.lastModified}-${idx}`} className="relative group aspect-square">
+                          <img src={url} alt="Preview" className="w-full h-full object-cover rounded-xl border-2 border-primary/50" />
                           <button
                             type="button"
                             onClick={() => removeNewImage(idx)}
@@ -465,15 +619,16 @@ export default function AdminDashboard() {
                   )}
 
                   {/* Upload Button */}
-                  {(existingImages.length + images.length) < 5 && (
+                  {(existingImages.length + images.length) < MAX_IMAGES && (
                     <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-surface-dark hover:border-accent transition-all">
                       <FiImage className="text-text-muted mb-1" size={24} />
                       <span className="text-sm text-text-muted font-medium">Tambah Foto</span>
-                      <span className="text-xs text-text-muted">Maksimal 5 gambar</span>
+                      <span className="text-xs text-text-muted">Maksimal {MAX_IMAGES} gambar</span>
                       <input
                         type="file"
                         multiple
-                        accept="image/jpeg,image/png,image/webp"
+                        accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                        disabled={processingImages}
                         onChange={handleImageChange}
                         className="hidden"
                       />
@@ -490,7 +645,7 @@ export default function AdminDashboard() {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="contoh: iPhone 12 Pro Max"
-                  className="w-full px-4 py-3 bg-surface-dark border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
+                  className="w-full rounded-xl border border-border bg-surface-dark px-4 py-3 text-base transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 sm:text-sm"
                 />
               </div>
 
@@ -500,7 +655,7 @@ export default function AdminDashboard() {
                 <select
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className="w-full px-4 py-3 bg-surface-dark border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all cursor-pointer"
+                  className="w-full cursor-pointer rounded-xl border border-border bg-surface-dark px-4 py-3 text-base transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 sm:text-sm"
                 >
                   <option value="Pakaian">Pakaian</option>
                   <option value="Elektronik">Elektronik</option>
@@ -524,7 +679,8 @@ export default function AdminDashboard() {
                     onChange={(e) => setForm({ ...form, price: e.target.value })}
                     placeholder="contoh: 5000000"
                     min="0"
-                    className="w-full pl-10 pr-4 py-3 bg-surface-dark border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all"
+                    inputMode="numeric"
+                    className="w-full rounded-xl border border-border bg-surface-dark py-3 pl-10 pr-4 text-base transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 sm:text-sm"
                   />
                 </div>
               </div>
@@ -537,7 +693,7 @@ export default function AdminDashboard() {
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   placeholder="Deskripsikan kondisi barang..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-surface-dark border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-all resize-none"
+                  className="w-full resize-none rounded-xl border border-border bg-surface-dark px-4 py-3 text-base transition-all focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 sm:text-sm"
                 />
               </div>
 
@@ -548,7 +704,7 @@ export default function AdminDashboard() {
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, status: 'available' })}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all border ${
+                    className={`flex-1 flex items-center justify-center gap-2 rounded-xl border py-2.5 text-base font-medium transition-all sm:text-sm ${
                       form.status === 'available'
                         ? 'bg-green-50 text-green-700 border-green-200'
                         : 'bg-white text-text-secondary border-border hover:bg-surface-dark'
@@ -560,7 +716,7 @@ export default function AdminDashboard() {
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, status: 'sold' })}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all border ${
+                    className={`flex-1 flex items-center justify-center gap-2 rounded-xl border py-2.5 text-base font-medium transition-all sm:text-sm ${
                       form.status === 'sold'
                         ? 'bg-red-50 text-red-700 border-red-200'
                         : 'bg-white text-text-secondary border-border hover:bg-surface-dark'
@@ -571,28 +727,39 @@ export default function AdminDashboard() {
                   </button>
                 </div>
               </div>
+              </div>
 
               {/* Submit */}
-              <button
-                type="submit"
-                disabled={saving}
-                className="w-full py-3 bg-gradient-to-r from-primary to-accent text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {saving ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Menyimpan...
-                  </>
-                ) : (
-                  <>
-                    <FiSave size={16} />
-                    {editItem ? 'Simpan Perubahan' : 'Tambah Barang'}
-                  </>
-                )}
-              </button>
+              <div className="shrink-0 border-t border-border bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:p-6">
+                <button
+                  type="submit"
+                  disabled={saving || processingImages}
+                  className="flex w-full touch-manipulation items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent py-3 text-base font-semibold text-white shadow-lg transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
+                >
+                  {saving ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Menyimpan...
+                    </>
+                  ) : processingImages ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Memproses foto...
+                    </>
+                  ) : (
+                    <>
+                      <FiSave size={16} />
+                      {editItem ? 'Simpan Perubahan' : 'Tambah Barang'}
+                    </>
+                  )}
+                </button>
+              </div>
             </form>
           </div>
         </div>

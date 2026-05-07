@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FiSearch, FiPackage } from 'react-icons/fi';
 import api from '../utils/api';
 import ItemCard from '../components/ItemCard';
@@ -12,11 +12,7 @@ export default function Home() {
   const [filter, setFilter] = useState('all'); // all | available | sold
   const [categoryFilter, setCategoryFilter] = useState('Semua Kategori');
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
-
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     try {
       setLoading(true);
       const res = await api.get('/items');
@@ -28,7 +24,12 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const loadTimer = window.setTimeout(fetchItems, 0);
+    return () => window.clearTimeout(loadTimer);
+  }, [fetchItems]);
 
   const filteredItems = items.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
