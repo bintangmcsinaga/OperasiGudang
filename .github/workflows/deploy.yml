@@ -48,7 +48,7 @@ jobs:
           strip_components: 1
 
       # Restart Backend
-      - name: Restart PM2
+      - name: Restart PM2 
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -57,4 +57,4 @@ jobs:
           script: |
             cd /var/www/OperasiGudang/backend
             npm install
-            pm2 restart operasigudang-api
+            pm2 restart server.js
