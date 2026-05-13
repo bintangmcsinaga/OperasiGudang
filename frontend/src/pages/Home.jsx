@@ -16,7 +16,7 @@ export default function Home() {
     try {
       setLoading(true);
       const res = await api.get('/items');
-      setItems(res.data);
+      setItems(Array.isArray(res.data) ? res.data : []);
       setError(null);
     } catch (err) {
       setError('Gagal memuat data barang. Pastikan server berjalan.');

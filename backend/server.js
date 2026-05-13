@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss');
 require('dotenv').config();
 
 const connectDB = require('./config/db');
@@ -22,9 +23,6 @@ app.use(cors());
 app.use(express.json({ limit: '10kb' })); // Body parser, limit to 10kb
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// Data sanitization against NoSQL query injection
-// Paket ini secara default TIDAK menyentuh req.headers — aman untuk file upload.
-app.use(mongoSanitize());
 
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
