@@ -3,7 +3,6 @@ const cors = require('cors');
 const path = require('path');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss');
 require('dotenv').config();
 
 const connectDB = require('./config/db');
@@ -24,33 +23,8 @@ app.use(express.json({ limit: '10kb' })); // Body parser, limit to 10kb
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Data sanitization against NoSQL query injection
-app.use((req, res, next) => {
-  if (req.body) mongoSanitize.sanitize(req.body);
-  if (req.query) mongoSanitize.sanitize(req.query);
-  if (req.params) mongoSanitize.sanitize(req.params);
-  if (req.headers) mongoSanitize.sanitize(req.headers);
-  next();
-});
-
-// Data sanitization against XSS
-const cleanObj = (obj) => {
-  if (typeof obj === 'string') return xss(obj);
-  if (typeof obj === 'object' && obj !== null) {
-    for (let key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        obj[key] = cleanObj(obj[key]);
-      }
-    }
-  }
-  return obj;
-};
-
-app.use((req, res, next) => {
-  if (req.body) cleanObj(req.body);
-  if (req.query) cleanObj(req.query);
-  if (req.params) cleanObj(req.params);
-  next();
-});
+// Paket ini secara default TIDAK menyentuh req.headers — aman untuk file upload.
+app.use(mongoSanitize());
 
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
