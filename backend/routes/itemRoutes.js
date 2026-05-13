@@ -26,11 +26,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Format file tidak didukung. Gunakan JPG, PNG, atau WebP.'), false);
+    cb(new Error('Format file tidak didukung. Gunakan JPG, PNG, WebP, HEIC, atau HEIF.'), false);
   }
 };
 
