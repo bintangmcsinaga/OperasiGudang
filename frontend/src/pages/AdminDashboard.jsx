@@ -566,8 +566,8 @@ export default function AdminDashboard() {
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex h-[100dvh] items-start justify-center overflow-y-auto bg-black/50 p-3 pt-4 backdrop-blur-sm sm:items-center sm:p-4">
-          <div className="flex w-full max-w-lg max-h-[calc(100dvh-1.5rem)] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-3xl">
+        <div className="fixed inset-0 z-50 flex h-[100dvh] items-center justify-center bg-black/50 p-3 pt-4 backdrop-blur-sm sm:p-4">
+          <div className="flex w-full max-w-lg max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-3xl">
             {/* Modal header */}
             <div className="flex shrink-0 items-center justify-between border-b border-border p-5 sm:p-6">
               <h2 className="text-lg font-bold text-text-primary">
