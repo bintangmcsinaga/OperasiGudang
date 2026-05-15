@@ -29,19 +29,16 @@ export default function ItemDetail() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8 mt-16 animate-pulse">
-        <div className="h-8 bg-surface-dark w-1/4 rounded mb-6"></div>
-        <div className="bg-white rounded-3xl shadow-sm border border-border p-6 flex flex-col md:flex-row gap-8">
-          <div className="w-full md:w-1/2 h-96 bg-surface-dark rounded-2xl"></div>
-          <div className="w-full md:w-1/2 space-y-4">
-            <div className="h-8 bg-surface-dark w-3/4 rounded"></div>
-            <div className="h-10 bg-surface-dark w-1/2 rounded"></div>
-            <div className="space-y-2 mt-6">
-              <div className="h-4 bg-surface-dark w-full rounded"></div>
-              <div className="h-4 bg-surface-dark w-full rounded"></div>
-              <div className="h-4 bg-surface-dark w-2/3 rounded"></div>
-            </div>
-            <div className="h-12 bg-surface-dark w-full rounded-xl mt-8"></div>
+      <div style={{ backgroundColor: 'var(--color-canvas-soft)', minHeight: '100vh' }}
+        className="max-w-5xl mx-auto px-4 py-8 pt-24 animate-pulse">
+        <div style={{ height: '28px', backgroundColor: 'var(--color-canvas)', borderRadius: 'var(--radius-sm)', width: '120px', marginBottom: '24px' }} />
+        <div style={{ backgroundColor: 'var(--color-canvas)', borderRadius: 'var(--radius-md)', padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}
+          className="md:flex-row">
+          <div style={{ flex: 1, height: '360px', backgroundColor: 'var(--color-canvas-soft)', borderRadius: 'var(--radius-md)' }} />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {[200, 120, 300, 300, 200].map((w, i) => (
+              <div key={i} style={{ height: i === 1 ? '40px' : '16px', width: `${w}px`, maxWidth: '100%', backgroundColor: 'var(--color-canvas-soft)', borderRadius: 'var(--radius-sm)' }} />
+            ))}
           </div>
         </div>
       </div>
@@ -50,11 +47,15 @@ export default function ItemDetail() {
 
   if (error || !item) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        <h2 className="text-2xl font-bold text-text-primary mb-4">{error || 'Barang tidak ditemukan'}</h2>
-        <Link to="/" className="text-primary hover:underline font-medium inline-flex items-center gap-2">
-          <FiArrowLeft /> Kembali ke Katalog
-        </Link>
+      <div style={{ backgroundColor: 'var(--color-canvas-soft)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px' }}>
+        <div style={{ textAlign: 'center' }}>
+          <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--color-ink)', marginBottom: '16px' }}>
+            {error || 'Barang tidak ditemukan'}
+          </h2>
+          <Link to="/" style={{ color: 'var(--color-primary)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
+            <FiArrowLeft /> Kembali ke Katalog
+          </Link>
+        </div>
       </div>
     );
   }
@@ -64,105 +65,149 @@ export default function ItemDetail() {
   const whatsappMessage = encodeURIComponent(`Halo, saya tertarik dengan barang ${item.name}, apakah masih tersedia?`);
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
+  const formatPrice = (price) =>
+    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price);
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-  };
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 pb-20">
-      <Link to="/" className="inline-flex items-center gap-2 text-text-secondary hover:text-primary transition-colors mb-6 font-medium">
-        <FiArrowLeft /> Kembali
-      </Link>
+    <div style={{ backgroundColor: 'var(--color-canvas-soft)', minHeight: '100vh', paddingBottom: '48px' }}>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" style={{ paddingTop: '32px' }}>
 
-      <div className="bg-white rounded-3xl shadow-lg border border-border overflow-hidden flex flex-col lg:flex-row">
-        {/* Left: Image Slider */}
-        <div className="w-full lg:w-1/2 relative bg-surface-dark min-h-[300px] lg:min-h-[500px]">
-          <ImageSlider images={item.images} alt={item.name} className="absolute inset-0 w-full h-full" />
+        {/* Back link */}
+        <Link to="/"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--color-body)', fontWeight: 500, fontSize: '14px', textDecoration: 'none', marginBottom: '20px' }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--color-primary)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--color-body)'}
+        >
+          <FiArrowLeft size={16} /> Kembali ke Katalog
+        </Link>
 
-          {/* Status Badge */}
-          <div className="absolute top-4 right-4 z-10">
-            {isSold ? (
-              <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-sold text-white text-sm font-bold rounded-full shadow-lg uppercase tracking-wide">
-                Sold Out
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-available text-white text-sm font-bold rounded-full shadow-lg uppercase tracking-wide">
-                <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                Tersedia
-              </span>
-            )}
+        <div style={{
+          backgroundColor: 'var(--color-canvas)',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--color-border-light)',
+          overflow: 'hidden',
+          boxShadow: '0 8px 32px rgba(32,21,21,0.08)',
+          display: 'flex', flexDirection: 'column',
+        }} className="lg:flex-row">
+
+          {/* Image Slider */}
+          <div style={{ position: 'relative', backgroundColor: 'var(--color-canvas-soft)', minHeight: '300px' }}
+            className="w-full lg:w-1/2 lg:min-h-[480px]">
+            <ImageSlider images={item.images} alt={item.name} className="absolute inset-0 w-full h-full" />
+
+            {/* Status badge */}
+            <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10 }}>
+              {isSold ? (
+                <span style={{
+                  backgroundColor: 'var(--color-ink)', color: 'var(--color-on-primary)',
+                  borderRadius: 'var(--radius-pill)', padding: '6px 14px',
+                  fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  boxShadow: '0 4px 12px rgba(32,21,21,0.3)',
+                }}>
+                  Sold Out
+                </span>
+              ) : (
+                <span style={{
+                  backgroundColor: 'var(--color-primary)', color: 'var(--color-on-primary)',
+                  borderRadius: 'var(--radius-pill)', padding: '6px 14px',
+                  fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  boxShadow: '0 4px 12px rgba(255,79,0,0.35)',
+                }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#fff' }} className="animate-pulse" />
+                  Tersedia
+                </span>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Right: Details */}
-        <div className="w-full lg:w-1/2 p-6 sm:p-8 lg:p-10 flex flex-col">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-surface border border-border rounded-lg text-xs font-semibold text-text-secondary">
-                <FiTag size={14} />
-                {item.category || 'Lainnya'}
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-xs text-text-muted">
-                <FiClock size={14} />
-                Ditambahkan {formatDate(item.createdAt)}
-              </span>
-            </div>
+          {/* Details */}
+          <div style={{ flex: 1, padding: '28px 32px', display: 'flex', flexDirection: 'column' }}
+            className="w-full lg:w-1/2">
+            <div style={{ flex: 1 }}>
 
-            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2 leading-tight">
-              {item.name}
-            </h1>
+              {/* Meta row */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px', flexWrap: 'wrap' }}>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  backgroundColor: 'var(--color-canvas-soft)', border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)', padding: '4px 10px',
+                  fontSize: '12px', fontWeight: 600, color: 'var(--color-body)',
+                }}>
+                  <FiTag size={13} />
+                  {item.category || 'Lainnya'}
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--color-body-mid)' }}>
+                  <FiClock size={13} />
+                  Ditambahkan {formatDate(item.createdAt)}
+                </span>
+              </div>
 
-            <p className="text-3xl sm:text-4xl font-bold text-accent mb-8">
-              {formatPrice(item.price)}
-            </p>
+              <h1 style={{ fontSize: 'clamp(22px, 4vw, 30px)', fontWeight: 700, color: 'var(--color-ink)', marginBottom: '8px', lineHeight: 1.2 }}>
+                {item.name}
+              </h1>
 
-            <div className="prose prose-sm sm:prose-base prose-slate max-w-none mb-8 text-text-secondary whitespace-pre-line">
-              <h3 className="text-lg font-semibold text-text-primary mb-2">Deskripsi Barang</h3>
-              {DOMPurify.sanitize(item.description)}
-            </div>
-
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-8 flex items-start gap-3">
-              <FiCheckCircle className="text-blue-500 mt-0.5 shrink-0" size={20} />
-              <p className="text-sm text-blue-800">
-                Hubungi penjual untuk memastikan ketersediaan barang.
+              <p style={{ fontSize: 'clamp(26px, 5vw, 36px)', fontWeight: 800, color: 'var(--color-primary)', marginBottom: '24px' }}>
+                {formatPrice(item.price)}
               </p>
-            </div>
-          </div>
 
-          {/* Action Button */}
-          <div className="pt-6 border-t border-border mt-auto">
-            {isSold ? (
-              <button
-                disabled
-                className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-gray-200 text-gray-500 rounded-2xl text-lg font-bold cursor-not-allowed"
-              >
-                <FaWhatsapp size={24} />
-                Barang Sudah Terjual
-              </button>
-            ) : (
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-whatsapp hover:bg-whatsapp-dark text-white rounded-2xl text-lg font-bold transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1 active:scale-[0.98]"
-              >
-                <FaWhatsapp size={24} />
-                Chat Penjual via WhatsApp
-              </a>
-            )}
+              {/* Description */}
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-ink)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  Deskripsi Barang
+                </h3>
+                <p style={{ fontSize: '15px', color: 'var(--color-body)', lineHeight: '24px', whiteSpace: 'pre-line' }}>
+                  {DOMPurify.sanitize(item.description)}
+                </p>
+              </div>
+
+              {/* Info box */}
+              <div style={{
+                backgroundColor: 'rgba(255,79,0,0.06)', border: '1px solid rgba(255,79,0,0.2)',
+                borderRadius: 'var(--radius-md)', padding: '14px 16px', marginBottom: '24px',
+                display: 'flex', alignItems: 'flex-start', gap: '10px',
+              }}>
+                <FiCheckCircle style={{ color: 'var(--color-primary)', flexShrink: 0, marginTop: '1px' }} size={18} />
+                <p style={{ fontSize: '13px', color: 'var(--color-ink-mid)' }}>
+                  Hubungi penjual untuk memastikan ketersediaan barang sebelum melakukan transaksi.
+                </p>
+              </div>
+            </div>
+
+            {/* Action */}
+            <div style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: '20px', marginTop: 'auto' }}>
+              {isSold ? (
+                <button disabled
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                    padding: '14px 24px', backgroundColor: 'var(--color-canvas-soft)',
+                    color: 'var(--color-mute)', borderRadius: 'var(--radius-md)',
+                    fontSize: '16px', fontWeight: 700, border: '1px solid var(--color-border)', cursor: 'not-allowed',
+                  }}>
+                  <FaWhatsapp size={22} />
+                  Barang Sudah Terjual
+                </button>
+              ) : (
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer"
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                    padding: '14px 24px', backgroundColor: 'var(--color-whatsapp)',
+                    color: '#fff', borderRadius: 'var(--radius-md)',
+                    fontSize: '16px', fontWeight: 700, textDecoration: 'none',
+                    boxShadow: '0 4px 16px rgba(37,211,102,0.3)', transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--color-whatsapp-dark)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--color-whatsapp)'; e.currentTarget.style.transform = 'none'; }}
+                >
+                  <FaWhatsapp size={22} />
+                  Chat Penjual via WhatsApp
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>
