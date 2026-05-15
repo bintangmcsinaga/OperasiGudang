@@ -12,44 +12,68 @@ export default function ItemCard({ item }) {
   );
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-    }).format(price);
-  };
+  const formatPrice = (price) =>
+    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(price);
 
   return (
     <Link
       to={`/item/${item._id}`}
-      className={`group bg-white rounded-2xl overflow-hidden border border-border shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col ${
-        isSold ? 'opacity-75' : ''
-      }`}
+      style={{
+        backgroundColor: 'var(--color-canvas)',
+        borderRadius: 'var(--radius-md)',
+        border: '1px solid var(--color-border-light)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        transition: 'box-shadow 0.25s, transform 0.25s',
+        opacity: isSold ? 0.8 : 1,
+        textDecoration: 'none',
+      }}
+      className="group hover:shadow-xl hover:-translate-y-1"
     >
-      {/* Image Slider */}
+      {/* Image */}
       <div className="relative overflow-hidden">
-        <ImageSlider 
-          images={item.images} 
-          alt={item.name} 
-          className="w-full h-32 sm:h-52 group-hover:scale-105 transition-transform duration-500" 
+        <ImageSlider
+          images={item.images}
+          alt={item.name}
+          className="w-full h-32 sm:h-52 group-hover:scale-105 transition-transform duration-500"
         />
 
         {/* Status badge */}
         <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
           {isSold ? (
-            <span className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 bg-sold text-white text-[10px] sm:text-xs font-bold rounded-full shadow-lg uppercase tracking-wide">
-              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
+            <span style={{
+              backgroundColor: 'var(--color-ink)',
+              color: 'var(--color-on-primary)',
+              borderRadius: 'var(--radius-pill)',
+              padding: '4px 10px',
+              fontSize: '10px',
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+            }}
+              className="inline-flex items-center gap-1 shadow-md">
+              <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd"
                   d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z"
-                  clipRule="evenodd"
-                />
+                  clipRule="evenodd" />
               </svg>
-              Sold
+              Sold Out
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 bg-available text-white text-[10px] sm:text-xs font-bold rounded-full shadow-lg uppercase tracking-wide">
-              <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+            <span style={{
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-on-primary)',
+              borderRadius: 'var(--radius-pill)',
+              padding: '4px 10px',
+              fontSize: '10px',
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+            }}
+              className="inline-flex items-center gap-1.5 shadow-md">
+              <span style={{ width: '6px', height: '6px', backgroundColor: 'var(--color-on-primary)', borderRadius: '50%' }}
+                className="animate-pulse" />
               Tersedia
             </span>
           )}
@@ -57,32 +81,58 @@ export default function ItemCard({ item }) {
       </div>
 
       {/* Content */}
-      <div className="p-3 sm:p-5 flex flex-col flex-1">
+      <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', flex: 1 }}
+        className="sm:p-5">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2 mb-1 sm:mb-2">
-          <h3 className="text-sm sm:text-lg font-semibold text-text-primary line-clamp-2 sm:line-clamp-1 leading-tight sm:leading-normal">
+          <h3 style={{ color: 'var(--color-ink)', fontWeight: 600, lineHeight: 1.3 }}
+            className="text-sm sm:text-base line-clamp-2">
             {item.name}
           </h3>
-          <span className="self-start sm:self-auto inline-block px-1.5 sm:px-2 py-0.5 bg-surface-dark border border-border rounded text-[8px] sm:text-[10px] text-text-secondary font-medium shrink-0">
+          <span style={{
+            backgroundColor: 'var(--color-canvas-soft)',
+            color: 'var(--color-body)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-sm)',
+            padding: '2px 7px',
+            fontSize: '10px',
+            fontWeight: 600,
+            whiteSpace: 'nowrap',
+          }}
+            className="self-start shrink-0">
             {item.category || 'Lainnya'}
           </span>
         </div>
 
-        <p className="text-base sm:text-xl font-bold text-accent mb-2">
+        <p style={{ color: 'var(--color-primary)', fontWeight: 700, fontSize: '18px', marginBottom: '8px' }}>
           {formatPrice(item.price)}
         </p>
 
-        <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 mb-3 sm:mb-4 flex-1">
+        <p style={{ color: 'var(--color-body)', fontSize: '13px', lineHeight: '20px', flex: 1, marginBottom: '12px' }}
+          className="line-clamp-2">
           {DOMPurify.sanitize(item.description)}
         </p>
 
-        {/* WhatsApp Button */}
+        {/* Action */}
         {isSold ? (
           <button
             disabled
-            className="w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-4 bg-gray-200 text-gray-400 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold cursor-not-allowed"
+            style={{
+              backgroundColor: 'var(--color-canvas-soft)',
+              color: 'var(--color-mute)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--color-border)',
+              padding: '8px 12px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'not-allowed',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+            }}
             onClick={(e) => e.preventDefault()}
           >
-            <FaWhatsapp className="w-3.5 h-3.5 sm:w-[18px] sm:h-[18px]" />
+            <FaWhatsapp size={16} />
             Terjual
           </button>
         ) : (
@@ -91,9 +141,24 @@ export default function ItemCard({ item }) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="w-full flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 px-2 sm:px-4 bg-whatsapp hover:bg-whatsapp-dark text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]"
+            style={{
+              backgroundColor: 'var(--color-whatsapp)',
+              color: '#fff',
+              borderRadius: 'var(--radius-md)',
+              padding: '8px 12px',
+              fontSize: '13px',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              transition: 'background-color 0.2s, box-shadow 0.2s',
+              textDecoration: 'none',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-whatsapp-dark)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-whatsapp)'; }}
           >
-            <FaWhatsapp className="w-3.5 h-3.5 sm:w-[18px] sm:h-[18px]" />
+            <FaWhatsapp size={16} />
             <span className="hidden sm:inline">Chat via WhatsApp</span>
             <span className="sm:hidden">WhatsApp</span>
           </a>
