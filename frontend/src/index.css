@@ -1,47 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
+  /* ── Zapier-inspired Design System ── */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  
-  --color-primary: #1a1a2e;
-  --color-secondary: #16213e;
-  --color-accent: #0f3460;
-  --color-highlight: #e94560;
-  
+  --font-display: "Inter", system-ui, sans-serif;
+  /* Degular Display substitute */
+
+  /* Brand & Accent */
+  --color-primary: #ff4f00;
+  /* Zapier Orange */
+  --color-on-primary: #fffefb;
+  /* Warm white */
+
+  /* Ink (text) */
+  --color-ink: #201515;
+  --color-ink-soft: #2f2a26;
+  --color-ink-mid: #36342e;
+  --color-body: #605d52;
+  --color-body-mid: #939084;
+  --color-mute: #c5c0b1;
+
+  /* Canvas (surface) */
+  --color-canvas: #fffefb;
+  /* Warm off-white page bg */
+  --color-canvas-soft: #f8f4f0;
+  /* Cream-tinted surface */
+
+  /* Legacy aliases (backward-compat with existing classes) */
+  --color-accent: #ff4f00;
+  --color-secondary: #2f2a26;
+  --color-highlight: #ff4f00;
+
+  --color-surface: #fffefb;
+  --color-surface-hover: #f8f4f0;
+  --color-surface-dark: #f0ece8;
+
+  --color-text-primary: #201515;
+  --color-text-secondary: #605d52;
+  --color-text-muted: #939084;
+
+  --color-border: #c5c0b1;
+  --color-border-light: #e0dbd4;
+
   --color-whatsapp: #25D366;
   --color-whatsapp-dark: #128C7E;
-  
-  --color-surface: #ffffff;
-  --color-surface-hover: #f8fafc;
-  --color-surface-dark: #f1f5f9;
-  
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
-  --color-text-muted: #94a3b8;
-  
-  --color-border: #e2e8f0;
-  --color-border-light: #f1f5f9;
-  
-  --color-sold: #ef4444;
-  --color-available: #22c55e;
-  
-  --color-danger: #ef4444;
-  --color-danger-dark: #dc2626;
+
+  --color-sold: #cc3300;
+  --color-available: #2a7a2a;
+  --color-danger: #cc3300;
+  --color-danger-dark: #a32200;
+
+  /* Spacing */
+  --spacing-xxs: 2px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-3xl: 48px;
+  --spacing-4xl: 64px;
+
+  /* Border radius */
+  --radius-none: 0px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-pill: 9999px;
+  --radius-full: 9999px;
 }
 
-/* Smooth scrolling */
+/* ── Base ── */
 html {
   scroll-behavior: smooth;
 }
 
 body {
   font-family: var(--font-sans);
-  color: var(--color-text-primary);
-  background-color: #f8fafc;
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
   min-height: 100vh;
 }
 
-/* Custom scrollbar */
+/* ── Custom scrollbar ── */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -51,10 +92,138 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-text-muted);
+  background: var(--color-mute);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
+  background: var(--color-body-mid);
+}
+
+/* ── Animations ── */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-warm {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* ── Zapier typography utilities ── */
+.font-display {
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: 500;
+}
+
+/* ── Zapier component primitives ── */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 27px;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover {
+  opacity: 0.88;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background-color: var(--color-ink);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.btn-tertiary {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.card {
+  background-color: var(--color-canvas-soft);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-xl);
+  color: var(--color-ink);
+}
+
+.card-dark {
+  background-color: var(--color-ink);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-xl);
+  color: var(--color-on-primary);
+}
+
+.text-input-base {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 18px;
+  line-height: 27px;
+  width: 100%;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.text-input-base:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(255, 79, 0, 0.15);
+}
+
+/* Sold out toggle */
+.toggle-sold {
+  background-color: #fff0eb;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.toggle-sold:hover {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
 }

@@ -8,41 +8,47 @@ export default function Navbar() {
   const isAdmin = location.pathname.startsWith('/admin');
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
+    <nav style={{ backgroundColor: 'var(--color-canvas)', borderBottom: '1px solid var(--color-border-light)' }}
+      className="sticky top-0 z-50 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-              <span className="text-white font-bold text-lg tracking-tight">BB</span>
+            <div style={{ backgroundColor: 'transparent', borderRadius: 'var(--radius-md)' }}
+              className="w-14 h-14 flex items-center justify-center shadow-md group-hover:opacity-90 transition-opacity">
+              <span style={{ color: 'var(--color-on-primary)' }} className="font-bold text-lg tracking-tight">
+                <img src="logo.png" alt="" />
+              </span>
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold text-text-primary leading-tight tracking-tight">
+              <span style={{ color: 'var(--color-ink)', fontWeight: 700, fontSize: '17px' }} className="leading-tight tracking-tight">
                 Operasi Gudang
               </span>
-              <span className="text-[10px] text-text-muted font-medium uppercase tracking-widest">
-                Katalog Barang Bekas
+              <span style={{ color: 'var(--color-body-mid)', fontSize: '10px', letterSpacing: '0.1em', fontWeight: 500 }}
+                className="uppercase">
+                Katalog Barang
               </span>
             </div>
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
             <Link
               to="/"
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${location.pathname === '/'
-                  ? 'bg-primary text-white shadow-md'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-dark'
-                }`}
+              style={location.pathname === '/'
+                ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-on-primary)', borderRadius: 'var(--radius-md)' }
+                : { color: 'var(--color-body)', borderRadius: 'var(--radius-md)' }}
+              className="px-4 py-2 text-sm font-medium transition-all duration-200 hover:opacity-80"
             >
               Katalog
             </Link>
             <Link
               to="/admin/login"
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isAdmin
-                  ? 'bg-primary text-white shadow-md'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-dark'
-                }`}
+              style={isAdmin
+                ? { backgroundColor: 'var(--color-ink)', color: 'var(--color-on-primary)', borderRadius: 'var(--radius-md)' }
+                : { color: 'var(--color-body)', borderRadius: 'var(--radius-md)' }}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-200 hover:opacity-80"
             >
               <FiShield size={14} />
               Admin
@@ -52,7 +58,8 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg text-text-secondary hover:bg-surface-dark transition-colors"
+            style={{ color: 'var(--color-body)', borderRadius: 'var(--radius-sm)' }}
+            className="md:hidden p-2 transition-colors hover:opacity-70"
           >
             {isOpen ? <FiX size={22} /> : <FiMenu size={22} />}
           </button>
@@ -60,24 +67,25 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {isOpen && (
-          <div className="md:hidden pb-4 border-t border-border-light mt-2 pt-3 space-y-1">
+          <div style={{ borderTop: '1px solid var(--color-border-light)' }}
+            className="md:hidden pb-4 mt-2 pt-3 space-y-1 animate-[fadeIn_0.2s_ease]">
             <Link
               to="/"
               onClick={() => setIsOpen(false)}
-              className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/'
-                  ? 'bg-primary text-white'
-                  : 'text-text-secondary hover:bg-surface-dark'
-                }`}
+              style={location.pathname === '/'
+                ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-on-primary)', borderRadius: 'var(--radius-md)' }
+                : { color: 'var(--color-body)', borderRadius: 'var(--radius-md)' }}
+              className="block px-4 py-2.5 text-sm font-medium transition-colors"
             >
               Katalog
             </Link>
             <Link
               to="/admin/login"
               onClick={() => setIsOpen(false)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${isAdmin
-                  ? 'bg-primary text-white'
-                  : 'text-text-secondary hover:bg-surface-dark'
-                }`}
+              style={isAdmin
+                ? { backgroundColor: 'var(--color-ink)', color: 'var(--color-on-primary)', borderRadius: 'var(--radius-md)' }
+                : { color: 'var(--color-body)', borderRadius: 'var(--radius-md)' }}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
             >
               <FiShield size={14} />
               Admin
